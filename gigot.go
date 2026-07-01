@@ -15,6 +15,8 @@ func main() {
 	cmds := []commands.Commands{
 		{FlagSet: commands.InitFlagSet(), Name: "init", Run: commands.Init},
 		{FlagSet: commands.SwitchFlagSet(), Name: "switch", Run: commands.Switch},
+		{FlagSet: commands.AddFlagSet(), Name: "add", Run: commands.Add},
+		{FlagSet: commands.RemoveFlagSet(), Name: "remove", Run: commands.Remove},
 	}
 
 	for _, cmd := range cmds {
