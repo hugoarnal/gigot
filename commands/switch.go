@@ -21,7 +21,6 @@ func Switch(cmd *flag.FlagSet) {
 	parsedConfig, err := config.ParseGitConfigFile(filename)
 
 	if err != nil {
-		// TODO: create the configuration file here instead
 		panic(err)
 	}
 

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	utils "gigot/internal"
 	"os"
 
 	"github.com/goccy/go-yaml"
@@ -19,7 +20,41 @@ func GetGitConfigFilename() string {
 	return GetPath() + "/gitconfig.yml"
 }
 
+func CheckGitConfigFile() bool {
+	return utils.CheckPath(GetGitConfigFilename())
+}
+
+func CreateGitConfigFile() error {
+	if CheckPath() == false {
+		if err := CreatePath(); err != nil {
+			return err
+		}
+	}
+
+	f, err := os.Create(GetGitConfigFilename())
+
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	err = f.Chmod(0644)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func ParseGitConfigFile(filename string) ([]GitConfigConfig, error) {
+	if CheckGitConfigFile() == false {
+		if err := CreateGitConfigFile(); err != nil {
+			return nil, err
+		}
+	}
+
 	data, err := os.ReadFile(filename)
 
 	if err != nil {
