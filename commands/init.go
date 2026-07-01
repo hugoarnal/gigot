@@ -13,9 +13,9 @@ type initShell struct {
 }
 
 func InitFlagSet() *flag.FlagSet {
-	initCmd := flag.NewFlagSet("init", flag.ExitOnError)
+	cmd := flag.NewFlagSet("init", flag.ExitOnError)
 
-	return initCmd
+	return cmd
 }
 
 //go:embed shell/gigot.zsh

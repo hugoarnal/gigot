@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/goccy/go-yaml"
@@ -46,4 +47,42 @@ func WriteGitConfigFile(filename string, config []GitConfigConfig) error {
 	err = os.WriteFile(filename, bytes, 0644)
 
 	return err
+}
+
+func FindGitConfigByName(config []GitConfigConfig, configName string) (int, error) {
+	configIndex := -1
+
+	// Finds the config in the array
+	for i := range config {
+		if config[i].Name == configName {
+			configIndex = i
+			break
+		}
+	}
+
+	if configIndex == -1 {
+		return configIndex, fmt.Errorf("Couldn't find \"%s\" in the configuration", configName)
+	}
+
+	return configIndex, nil
+}
+
+func SwitchGitConfigConfig(config *[]GitConfigConfig, configName string) error {
+	configIndex, err := FindGitConfigByName(*config, configName)
+
+	if err != nil {
+		return err
+	}
+
+	// Toggles the selected value from the selected config
+	// Removes selected from all other configs
+	for i := range *config {
+		if i == configIndex {
+			(*config)[i].Selected = !(*config)[i].Selected
+		} else {
+			(*config)[i].Selected = false
+		}
+	}
+
+	return nil
 }
