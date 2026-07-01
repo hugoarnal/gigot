@@ -35,3 +35,15 @@ func ParseGitConfigFile(filename string) ([]GitConfigConfig, error) {
 
 	return v, nil
 }
+
+func WriteGitConfigFile(filename string, config []GitConfigConfig) error {
+	bytes, err := yaml.Marshal(config)
+
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(filename, bytes, 0644)
+
+	return err
+}
