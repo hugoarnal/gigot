@@ -14,6 +14,8 @@ func SwitchFlagSet() *flag.FlagSet {
 }
 
 func Switch(cmd *flag.FlagSet) {
+	disable := cmd.Bool("disable", false, "Disable the currently enabled gitconfig")
+
 	cmd.Parse(os.Args[2:])
 
 	filename := config.GetGitConfigFilename()
@@ -22,6 +24,19 @@ func Switch(cmd *flag.FlagSet) {
 
 	if err != nil {
 		panic(err)
+	}
+
+	if *disable == true {
+		for i := range parsedConfig {
+			parsedConfig[i].Selected = false
+		}
+
+		if err := config.WriteGitConfigFile(config.GetGitConfigFilename(), parsedConfig); err != nil {
+			panic(err)
+		}
+
+		fmt.Println("Disabled all enabled configurations")
+		return
 	}
 
 	if cmd.NArg() == 0 {
