@@ -11,9 +11,9 @@ import (
 // Terribly named
 // Essentially, how the configuration keeps metadata about gitconfig files
 type GitConfigConfig struct {
-	Name     string
-	Path     string
-	Selected bool
+	Name    string
+	Path    string
+	Enabled bool
 }
 
 func GetGitConfigFilename() string {
@@ -109,13 +109,13 @@ func SwitchGitConfigConfig(config *[]GitConfigConfig, configName string) error {
 		return err
 	}
 
-	// Toggles the selected value from the selected config
-	// Removes selected from all other configs
+	// Toggles the enabled value from the given config
+	// Removes enabled from all other configs
 	for i := range *config {
 		if i == configIndex {
-			(*config)[i].Selected = !(*config)[i].Selected
+			(*config)[i].Enabled = !(*config)[i].Enabled
 		} else {
-			(*config)[i].Selected = false
+			(*config)[i].Enabled = false
 		}
 	}
 

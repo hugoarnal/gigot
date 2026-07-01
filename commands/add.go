@@ -30,7 +30,7 @@ func Add(cmd *flag.FlagSet) {
 		panic(err)
 	}
 
-	parsedConfig = append(parsedConfig, config.GitConfigConfig{Name: *name, Path: *path, Selected: false})
+	parsedConfig = append(parsedConfig, config.GitConfigConfig{Name: *name, Path: *path, Enabled: false})
 
 	err = config.WriteGitConfigFile(config.GetGitConfigFilename(), parsedConfig)
 

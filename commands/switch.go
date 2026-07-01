@@ -28,7 +28,7 @@ func Switch(cmd *flag.FlagSet) {
 
 	if *disable == true {
 		for i := range parsedConfig {
-			parsedConfig[i].Selected = false
+			parsedConfig[i].Enabled = false
 		}
 
 		if err := config.WriteGitConfigFile(config.GetGitConfigFilename(), parsedConfig); err != nil {
@@ -70,7 +70,7 @@ func Switch(cmd *flag.FlagSet) {
 		}
 
 		particle := "on"
-		if parsedConfig[configIndex].Selected == false {
+		if parsedConfig[configIndex].Enabled == false {
 			particle = "off"
 		}
 
