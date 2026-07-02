@@ -17,6 +17,7 @@ func main() {
 		{FlagSet: commands.SwitchFlagSet(), Name: "switch", Run: commands.Switch},
 		{FlagSet: commands.AddFlagSet(), Name: "add", Run: commands.Add},
 		{FlagSet: commands.RemoveFlagSet(), Name: "remove", Run: commands.Remove},
+		{FlagSet: commands.GetEnabledFlagSet(), Name: "get-enabled", Run: commands.GetEnabled},
 	}
 
 	for _, cmd := range cmds {
