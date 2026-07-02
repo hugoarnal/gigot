@@ -47,7 +47,11 @@ func Switch(cmd *flag.FlagSet) {
 		fmt.Println("The currently available configs are:")
 
 		for _, c := range parsedConfig {
-			fmt.Printf("    %s\n", c.Name)
+			fmt.Printf("    %s", c.Name)
+			if c.Enabled {
+				fmt.Printf(" (enabled)")
+			}
+			fmt.Printf("\n")
 		}
 
 		os.Exit(1)
