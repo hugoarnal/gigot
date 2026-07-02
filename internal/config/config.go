@@ -20,3 +20,9 @@ func CreatePath() error {
 
 	return err
 }
+
+func IsGigotShellSet() bool {
+	_, present := os.LookupEnv("GIGOT_SHELL")
+
+	return present
+}

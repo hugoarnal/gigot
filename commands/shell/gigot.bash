@@ -1,5 +1,7 @@
 # shellcheck shell=bash
 
+export GIGOT_SHELL="$(basename "$(echo $0)")"
+
 GIGOT_BINARY="gigot"
 
 # GIGOT_DEV must be set when the script is evaluated

@@ -20,6 +20,14 @@ func Switch(cmd *flag.FlagSet) {
 		panic(err)
 	}
 
+	if !config.IsGigotShellSet() {
+		fmt.Println("WARNING: the \"GIGOT_SHELL\" environment variable isn't set")
+		fmt.Println("That means the shell session probably wasn't initialized using \"gigot init\"")
+		fmt.Println("Please look at the documentation to setup your shell environment properly")
+		fmt.Println("Proceeding with the switch command")
+		fmt.Println()
+	}
+
 	filename := config.GetGitConfigFilename()
 
 	parsedConfig, err := config.ParseGitConfigFile(filename)
