@@ -1,12 +1,12 @@
-# shellcheck shell=zsh
+# shellcheck shell=bash
 
-local binary="gigot"
+GIGOT_BINARY="gigot"
 
 # GIGOT_DEV must be set when the script is evaluated
 if ! [ -z "$GIGOT_DEV" ]; then
-    binary="./gigot"
+    GIGOT_BINARY="./gigot"
 fi
 
 gigot() {
-    command "$binary" "$@"
+    command "$GIGOT_BINARY" "$@"
 }
