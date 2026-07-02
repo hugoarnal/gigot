@@ -25,7 +25,7 @@ func CheckGitConfigFile() bool {
 }
 
 func CreateGitConfigFile() error {
-	if CheckPath() == false {
+	if !CheckPath() {
 		if err := CreatePath(); err != nil {
 			return err
 		}
@@ -37,7 +37,11 @@ func CreateGitConfigFile() error {
 		return err
 	}
 
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			panic(err)
+		}
+	}()
 
 	err = f.Chmod(0644)
 
@@ -49,7 +53,7 @@ func CreateGitConfigFile() error {
 }
 
 func ParseGitConfigFile(filename string) ([]GitConfigConfig, error) {
-	if CheckGitConfigFile() == false {
+	if !CheckGitConfigFile() {
 		if err := CreateGitConfigFile(); err != nil {
 			return nil, err
 		}
@@ -96,7 +100,7 @@ func FindGitConfigByName(config []GitConfigConfig, configName string) (int, erro
 	}
 
 	if configIndex == -1 {
-		return configIndex, fmt.Errorf("Couldn't find \"%s\" in the configuration", configName)
+		return configIndex, fmt.Errorf("couldn't find \"%s\" in the configuration", configName)
 	}
 
 	return configIndex, nil

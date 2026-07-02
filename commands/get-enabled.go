@@ -17,7 +17,9 @@ func GetEnabled(cmd *flag.FlagSet) {
 	name := cmd.Bool("name", false, "Get the currently enabled name")
 	path := cmd.Bool("path", false, "Get the currently enabled path")
 
-	cmd.Parse(os.Args[2:])
+	if err := cmd.Parse(os.Args[2:]); err != nil {
+		panic(err)
+	}
 
 	parsedConfig, err := config.ParseGitConfigFile(config.GetGitConfigFilename())
 
@@ -30,18 +32,18 @@ func GetEnabled(cmd *flag.FlagSet) {
 	}
 
 	for i := range parsedConfig {
-		if parsedConfig[i].Enabled == true {
+		if parsedConfig[i].Enabled {
 			selectedConfig = parsedConfig[i]
 			break
 		}
 	}
 
-	if *path == true {
+	if *path {
 		fmt.Println(selectedConfig.Path)
 		return
 	}
 
-	if *name == true {
+	if *name {
 		fmt.Println(selectedConfig.Name)
 		return
 	}

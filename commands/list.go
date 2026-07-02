@@ -14,7 +14,9 @@ func ListFlagSet() *flag.FlagSet {
 }
 
 func List(cmd *flag.FlagSet) {
-	cmd.Parse(os.Args[2:])
+	if err := cmd.Parse(os.Args[2:]); err != nil {
+		panic(err)
+	}
 
 	parsedConfig, err := config.ParseGitConfigFile(config.GetGitConfigFilename())
 

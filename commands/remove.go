@@ -16,7 +16,9 @@ func RemoveFlagSet() *flag.FlagSet {
 func Remove(cmd *flag.FlagSet) {
 	name := cmd.String("name", "", "Name of the associated gitconfig")
 
-	cmd.Parse(os.Args[2:])
+	if err := cmd.Parse(os.Args[2:]); err != nil {
+		panic(err)
+	}
 
 	if *name == "" {
 		fmt.Println("Incorrect usage, please use the \"--help\" flag as reference")

@@ -30,7 +30,9 @@ var shellBash string
 var shellZsh string
 
 func Init(cmd *flag.FlagSet) {
-	cmd.Parse(os.Args[2:])
+	if err := cmd.Parse(os.Args[2:]); err != nil {
+		panic(err)
+	}
 
 	if cmd.NArg() != 1 {
 		fmt.Println("No argument given")
