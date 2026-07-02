@@ -18,6 +18,14 @@ func InitFlagSet() *flag.FlagSet {
 	return cmd
 }
 
+//go:embed shell/gigot.bash
+var shellBash string
+
+// gigot.zsh is a copy of gigot.bash
+// bash and zsh have quite the same syntax which makes sense
+// I tried doing a symlink but it is strictly forbidden by the embed module:
+// https://github.com/golang/go/issues/44507
+//
 //go:embed shell/gigot.zsh
 var shellZsh string
 
@@ -30,6 +38,10 @@ func Init(cmd *flag.FlagSet) {
 	}
 
 	shells := []initShell{
+		{
+			name:    "bash",
+			content: shellBash,
+		},
 		{
 			name:    "zsh",
 			content: shellZsh,
