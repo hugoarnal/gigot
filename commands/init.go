@@ -31,12 +31,12 @@ func InitFlagSet() *flag.FlagSet {
 //go:embed shell/gigot.bash
 var shellBash string
 
-// gigot.zsh is a copy of gigot.bash
+// It is intentional for the zsh config to depend on the bash one
 // bash and zsh have quite the same syntax which makes sense
 // I tried doing a symlink but it is strictly forbidden by the embed module:
 // https://github.com/golang/go/issues/44507
 //
-//go:embed shell/gigot.zsh
+//go:embed shell/gigot.bash
 var shellZsh string
 
 func initShellList() []initShell {
