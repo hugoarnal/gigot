@@ -1,17 +1,22 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"gigot/commands"
 	"os"
 )
 
-func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Invalid amount of arguments")
-		os.Exit(1)
+func printUsage(cmds []commands.Commands) {
+	fmt.Println("Usage: gigot [subcommand]")
+	fmt.Println("")
+	fmt.Println("Subcommands:")
+	for _, cmd := range cmds {
+		fmt.Printf("    %s\n", cmd.Name)
 	}
+}
 
+func main() {
 	cmds := []commands.Commands{
 		{FlagSet: commands.InitFlagSet(), Name: "init", Run: commands.Init},
 		{FlagSet: commands.SwitchFlagSet(), Name: "switch", Run: commands.Switch},
@@ -21,6 +26,20 @@ func main() {
 		{FlagSet: commands.ListFlagSet(), Name: "list", Run: commands.List},
 	}
 
+	help := flag.Bool("help", false, "Shows the help menu")
+
+	flag.Parse()
+
+	if *help {
+		printUsage(cmds)
+		os.Exit(0)
+	}
+
+	if len(os.Args) < 2 {
+		printUsage(cmds)
+		os.Exit(1)
+	}
+
 	for _, cmd := range cmds {
 		if os.Args[1] == cmd.Name {
 			cmd.Run(cmd.FlagSet)
@@ -28,6 +47,6 @@ func main() {
 		}
 	}
 
-	fmt.Println("Incorrect subcommand")
+	printUsage(cmds)
 	os.Exit(1)
 }

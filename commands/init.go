@@ -15,6 +15,16 @@ type initShell struct {
 func InitFlagSet() *flag.FlagSet {
 	cmd := flag.NewFlagSet("init", flag.ExitOnError)
 
+	cmd.Usage = func() {
+		shells := initShellList()
+
+		fmt.Println("Available shells:")
+
+		for _, shell := range shells {
+			fmt.Printf("    %s\n", shell.name)
+		}
+	}
+
 	return cmd
 }
 
@@ -29,17 +39,8 @@ var shellBash string
 //go:embed shell/gigot.zsh
 var shellZsh string
 
-func Init(cmd *flag.FlagSet) {
-	if err := cmd.Parse(os.Args[2:]); err != nil {
-		panic(err)
-	}
-
-	if cmd.NArg() != 1 {
-		fmt.Println("No argument given")
-		os.Exit(1)
-	}
-
-	shells := []initShell{
+func initShellList() []initShell {
+	return []initShell{
 		{
 			name:    "bash",
 			content: shellBash,
@@ -48,6 +49,19 @@ func Init(cmd *flag.FlagSet) {
 			name:    "zsh",
 			content: shellZsh,
 		},
+	}
+}
+
+func Init(cmd *flag.FlagSet) {
+	if err := cmd.Parse(os.Args[2:]); err != nil {
+		panic(err)
+	}
+
+	shells := initShellList()
+
+	if cmd.NArg() != 1 {
+		fmt.Println("No argument given")
+		os.Exit(1)
 	}
 
 	for _, shell := range shells {
