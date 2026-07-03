@@ -24,6 +24,8 @@ func main() {
 		{FlagSet: commands.RemoveFlagSet(), Name: "remove", Run: commands.Remove},
 		{FlagSet: commands.GetEnabledFlagSet(), Name: "get-enabled", Run: commands.GetEnabled},
 		{FlagSet: commands.ListFlagSet(), Name: "list", Run: commands.List},
+		{FlagSet: commands.TempFlagSet(), Name: "temp", Run: commands.Temp},
+		{FlagSet: commands.GetFlagSet(), Name: "get", Run: commands.Get},
 	}
 
 	help := flag.Bool("help", false, "Shows the help menu")

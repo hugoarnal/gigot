@@ -2,7 +2,6 @@ package commands
 
 import (
 	"flag"
-	"fmt"
 	"gigot/internal/config"
 	"os"
 )
@@ -38,15 +37,5 @@ func GetEnabled(cmd *flag.FlagSet) {
 		}
 	}
 
-	if *path {
-		fmt.Println(selectedConfig.Path)
-		return
-	}
-
-	if *name {
-		fmt.Println(selectedConfig.Name)
-		return
-	}
-
-	fmt.Println(selectedConfig.Name, selectedConfig.Path)
+	GetPrint(selectedConfig, *name, *path)
 }

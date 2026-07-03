@@ -1,6 +1,7 @@
 # shellcheck shell=bash
 
-export GIGOT_SHELL="$(basename "$(echo $0)")"
+GIGOT_SHELL="$(basename "$0")"
+export GIGOT_SHELL
 
 GIGOT_BINARY="gigot"
 
@@ -9,8 +10,8 @@ if ! [ -z "$GIGOT_DEV" ]; then
     GIGOT_BINARY="./gigot"
 fi
 
-__gigot_set_global_config() {
-    GIT_CONFIG_GLOBAL="$($GIGOT_BINARY get-enabled --path)"
+__gigot_set_git_config_global() {
+    GIT_CONFIG_GLOBAL="$1"
 
     # GIT_CONFIG_GLOBAL if empty, doesn't fallback to the "global" gitconfig
     # Therefore, we need to unset it
@@ -21,6 +22,10 @@ __gigot_set_global_config() {
     fi
 }
 
+__gigot_set_global_config() {
+    __gigot_set_git_config_global "$($GIGOT_BINARY get-enabled --path)"
+}
+
 __gigot_set_global_config
 
 gigot() {
@@ -28,5 +33,9 @@ gigot() {
 
     if [ "$1" = "switch" ]; then
         __gigot_set_global_config
+    fi
+    if [ "$1" = "temp" ]; then
+        # Silence all errors from the get command
+        __gigot_set_git_config_global "$($GIGOT_BINARY get --path "$2" 2>/dev/null)"
     fi
 }
