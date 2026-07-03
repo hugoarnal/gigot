@@ -7,6 +7,24 @@ import (
 	"os"
 )
 
+func SwitchList(parsedConfig []config.GitConfigConfig) {
+	// Listing all of them for now
+	// TODO: switch to TUI
+	fmt.Println("You must specify the gitconfig to switch to")
+	fmt.Println()
+	fmt.Println("The currently available configs are:")
+
+	for _, c := range parsedConfig {
+		fmt.Printf("    %s", c.Name)
+		if c.Enabled {
+			fmt.Printf(" (enabled)")
+		}
+		fmt.Printf("\n")
+	}
+
+	os.Exit(1)
+}
+
 func SwitchFlagSet() *flag.FlagSet {
 	cmd := flag.NewFlagSet("switch", flag.ExitOnError)
 
@@ -20,13 +38,7 @@ func Switch(cmd *flag.FlagSet) {
 		panic(err)
 	}
 
-	if !config.IsGigotShellSet() {
-		fmt.Println("WARNING: the \"GIGOT_SHELL\" environment variable isn't set")
-		fmt.Println("That means the shell session probably wasn't initialized using \"gigot init\"")
-		fmt.Println("Please look at the documentation to setup your shell environment properly")
-		fmt.Println("Proceeding with the switch command")
-		fmt.Println()
-	}
+	config.GigotShellWarning()
 
 	filename := config.GetGitConfigFilename()
 

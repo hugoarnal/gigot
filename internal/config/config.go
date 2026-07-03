@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	utils "gigot/internal"
 	"os"
 
@@ -25,4 +26,14 @@ func IsGigotShellSet() bool {
 	_, present := os.LookupEnv("GIGOT_SHELL")
 
 	return present
+}
+
+func GigotShellWarning() {
+	if !IsGigotShellSet() {
+		fmt.Println("WARNING: the \"GIGOT_SHELL\" environment variable isn't set")
+		fmt.Println("That means the shell session probably wasn't initialized using \"gigot init\"")
+		fmt.Println("Please look at the documentation to setup your shell environment properly")
+		fmt.Println("Proceeding with the switch command")
+		fmt.Println()
+	}
 }
