@@ -6,7 +6,7 @@ export GIGOT_SHELL
 GIGOT_BINARY="gigot"
 
 # GIGOT_DEV must be set when the script is evaluated
-if ! [ -z "$GIGOT_DEV" ]; then
+if [ -n "$GIGOT_DEV" ]; then
     GIGOT_BINARY="./gigot"
 fi
 
