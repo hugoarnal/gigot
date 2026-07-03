@@ -111,3 +111,18 @@ If you wish to extend your previous "main" configuration with just some changes 
 [core]
     sshCommand = ssh -i ~/.ssh/id_work
 ```
+
+### Starship module
+
+Here's a [Starship](https://starship.rs) module to see which gitconfig is currently in use (using the $GIT_CONFIG_GLOBAL env):
+
+```ini
+[custom.git_config_global]
+disabled = false
+description = "See the currently in use gitconfig (via GIT_CONFIG_GLOBAL env)"
+command = "basename $(echo \"$GIT_CONFIG_GLOBAL\")"
+shell = ["bash", "--noprofile", "--norc"]
+when = "[ -n \"$GIT_CONFIG_GLOBAL\" ]"
+style = "blue bold"
+format = "[$symbol($output)]($style) "
+```
