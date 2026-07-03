@@ -14,6 +14,8 @@ func TempFlagSet() *flag.FlagSet {
 }
 
 func Temp(cmd *flag.FlagSet) {
+	disable := cmd.Bool("disable", false, "Disable the currently enabled gitconfig")
+
 	if err := cmd.Parse(os.Args[2:]); err != nil {
 		panic(err)
 	}
@@ -26,6 +28,11 @@ func Temp(cmd *flag.FlagSet) {
 
 	if err != nil {
 		panic(err)
+	}
+
+	if *disable {
+		fmt.Println("Disabling the currently used config")
+		return
 	}
 
 	if cmd.NArg() == 0 {

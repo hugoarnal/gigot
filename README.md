@@ -88,6 +88,12 @@ If you wish to change configurations only for this shell session, you can use `g
 gigot temp "Work"
 ```
 
+Disabling any configuration for this shell session:
+
+```sh
+gigot temp --disable
+```
+
 ## Build
 
 Build the binary using Go:
