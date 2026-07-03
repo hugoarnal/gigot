@@ -72,6 +72,22 @@ If no gitconfigs are enabled, gigot returns just an empty string.
 gigot list
 ```
 
+### Get any configuration
+
+```sh
+gigot get "Work"
+gigot get --name "Work"
+gigot get --path "Work"
+```
+
+### Temporarily switch configurations
+
+If you wish to change configurations only for this shell session, you can use `gigot temp`:
+
+```sh
+gigot temp "Work"
+```
+
 ## Build
 
 Build the binary using Go:
