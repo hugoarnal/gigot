@@ -60,7 +60,7 @@ func Init(cmd *flag.FlagSet) {
 	shells := initShellList()
 
 	if cmd.NArg() != 1 {
-		fmt.Println("No argument given")
+		fmt.Println("Invalid amount of arguments")
 		os.Exit(1)
 	}
 
