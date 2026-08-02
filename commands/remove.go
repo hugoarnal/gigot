@@ -1,41 +1,39 @@
 package commands
 
 import (
-	"flag"
 	"fmt"
 	"gigot/internal/config"
-	"os"
+
+	"github.com/spf13/cobra"
 )
 
-func RemoveFlagSet() *flag.FlagSet {
-	cmd := flag.NewFlagSet("remove", flag.ExitOnError)
-
+func RemoveCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "remove",
+		Short: "Removes a gitconfig from the configuration file",
+		RunE:  Remove,
+	}
+	cmd.Flags().String("name", "", "Name of the associated gitconfig")
 	return cmd
 }
 
-func Remove(cmd *flag.FlagSet) {
-	name := cmd.String("name", "", "Name of the associated gitconfig")
+func Remove(cmd *cobra.Command, args []string) error {
+	name, _ := cmd.Flags().GetString("name")
 
-	if err := cmd.Parse(os.Args[2:]); err != nil {
-		panic(err)
-	}
-
-	if *name == "" {
-		fmt.Println("Incorrect usage, please use the \"--help\" flag as reference")
-		os.Exit(1)
+	if name == "" {
+		return fmt.Errorf("incorrect usage, missing name")
 	}
 
 	parsedConfig, err := config.ParseGitConfigFile(config.GetGitConfigFilename())
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	index, err := config.FindGitConfigByName(parsedConfig, *name)
+	index, err := config.FindGitConfigByName(parsedConfig, name)
 
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 
 	parsedConfig = append(parsedConfig[:index], parsedConfig[index+1:]...)
@@ -43,8 +41,9 @@ func Remove(cmd *flag.FlagSet) {
 	err = config.WriteGitConfigFile(config.GetGitConfigFilename(), parsedConfig)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	fmt.Printf("Removed \"%s\" from the configuration\n", *name)
+	fmt.Printf("Removed \"%s\" from the configuration\n", name)
+	return nil
 }

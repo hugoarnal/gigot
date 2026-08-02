@@ -1,10 +1,11 @@
 package commands
 
 import (
-	"flag"
 	"fmt"
 	"gigot/internal/config"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 func SwitchList(parsedConfig []config.GitConfigConfig) {
@@ -25,18 +26,18 @@ func SwitchList(parsedConfig []config.GitConfigConfig) {
 	os.Exit(1)
 }
 
-func SwitchFlagSet() *flag.FlagSet {
-	cmd := flag.NewFlagSet("switch", flag.ExitOnError)
-
+func SwitchCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "switch",
+		Short: "Switch to another gitconfig",
+		RunE:  Switch,
+	}
+	cmd.Flags().Bool("disable", false, "Disable the currently enabled gitconfig")
 	return cmd
 }
 
-func Switch(cmd *flag.FlagSet) {
-	disable := cmd.Bool("disable", false, "Disable the currently enabled gitconfig")
-
-	if err := cmd.Parse(os.Args[2:]); err != nil {
-		panic(err)
-	}
+func Switch(cmd *cobra.Command, args []string) error {
+	disable, _ := cmd.Flags().GetBool("disable")
 
 	config.GigotShellWarning()
 
@@ -45,54 +46,40 @@ func Switch(cmd *flag.FlagSet) {
 	parsedConfig, err := config.ParseGitConfigFile(filename)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	if *disable {
+	if disable {
 		for i := range parsedConfig {
 			parsedConfig[i].Enabled = false
 		}
 
 		if err := config.WriteGitConfigFile(config.GetGitConfigFilename(), parsedConfig); err != nil {
-			panic(err)
+			return err
 		}
 
 		fmt.Println("Disabled all enabled configurations")
-		return
+		return nil
 	}
 
-	if cmd.NArg() == 0 {
-		// Listing all of them for now
-		// TODO: switch to TUI
-		fmt.Println("You must specify the gitconfig to switch to")
-		fmt.Println()
-		fmt.Println("The currently available configs are:")
-
-		for _, c := range parsedConfig {
-			fmt.Printf("    %s", c.Name)
-			if c.Enabled {
-				fmt.Printf(" (enabled)")
-			}
-			fmt.Printf("\n")
-		}
-
-		os.Exit(1)
-	} else if cmd.NArg() == 1 {
-		selectedConfig := cmd.Arg(0)
+	switch len(args) {
+	case 0:
+		SwitchList(parsedConfig)
+	case 1:
+		selectedConfig := args[0]
 
 		if err := config.SwitchGitConfigConfig(&parsedConfig, selectedConfig); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return err
 		}
 
 		if err := config.WriteGitConfigFile(filename, parsedConfig); err != nil {
-			panic(err)
+			return err
 		}
 
 		configIndex, err := config.FindGitConfigByName(parsedConfig, selectedConfig)
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		particle := "on"
@@ -101,8 +88,9 @@ func Switch(cmd *flag.FlagSet) {
 		}
 
 		fmt.Printf("Toggled %s \"%s\" configuration\n", particle, selectedConfig)
-	} else {
-		fmt.Println("Incorrect amount of arguments")
-		os.Exit(1)
+	default:
+		return fmt.Errorf("incorrect amount of arguments")
 	}
+
+	return nil
 }

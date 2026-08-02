@@ -1,29 +1,34 @@
+// TODO: this command could probably be merged with gigot get
+// something like gigot get --current
 package commands
 
 import (
-	"flag"
 	"gigot/internal/config"
-	"os"
+
+	"github.com/spf13/cobra"
 )
 
-func GetEnabledFlagSet() *flag.FlagSet {
-	cmd := flag.NewFlagSet("get-enabled", flag.ExitOnError)
-
+func GetEnabledCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "get-enabled",
+		Short: "Get associated information of currently enabled config",
+		RunE:  GetEnabled,
+	}
+	cmd.Flags().Bool("name", false, "Get only name of the gitconfig")
+	cmd.Flags().Bool("path", false, "Get only path of the gitconfig")
+	cmd.Flags().Bool("enabled", false, "Get only enabled status of the gitconfig")
 	return cmd
 }
 
-func GetEnabled(cmd *flag.FlagSet) {
-	name := cmd.Bool("name", false, "Get the currently enabled name")
-	path := cmd.Bool("path", false, "Get the currently enabled path")
-
-	if err := cmd.Parse(os.Args[2:]); err != nil {
-		panic(err)
-	}
+func GetEnabled(cmd *cobra.Command, args []string) error {
+	name, _ := cmd.Flags().GetBool("name")
+	path, _ := cmd.Flags().GetBool("path")
+	enabled, _ := cmd.Flags().GetBool("enabled")
 
 	parsedConfig, err := config.ParseGitConfigFile(config.GetGitConfigFilename())
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	selectedConfig := config.GitConfigConfig{
@@ -37,5 +42,7 @@ func GetEnabled(cmd *flag.FlagSet) {
 		}
 	}
 
-	GetPrint(selectedConfig, *name, *path)
+	GetPrint(selectedConfig, name, path, enabled)
+
+	return nil
 }

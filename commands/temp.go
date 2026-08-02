@@ -1,24 +1,24 @@
 package commands
 
 import (
-	"flag"
 	"fmt"
 	"gigot/internal/config"
-	"os"
+
+	"github.com/spf13/cobra"
 )
 
-func TempFlagSet() *flag.FlagSet {
-	cmd := flag.NewFlagSet("temp", flag.ExitOnError)
-
+func TempCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "temp",
+		Short: "Temporarily (only for this shell session) switch to another gitconfig",
+		RunE:  Temp,
+	}
+	cmd.Flags().Bool("disable", false, "Disable the currently enabled gitconfig")
 	return cmd
 }
 
-func Temp(cmd *flag.FlagSet) {
-	disable := cmd.Bool("disable", false, "Disable the currently enabled gitconfig")
-
-	if err := cmd.Parse(os.Args[2:]); err != nil {
-		panic(err)
-	}
+func Temp(cmd *cobra.Command, args []string) error {
+	disable, _ := cmd.Flags().GetBool("disable")
 
 	config.GigotShellWarning()
 
@@ -27,28 +27,30 @@ func Temp(cmd *flag.FlagSet) {
 	parsedConfig, err := config.ParseGitConfigFile(filename)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	if *disable {
+	if disable {
 		fmt.Println("Disabling the currently used config")
-		return
+		return nil
 	}
 
-	if cmd.NArg() == 0 {
+	switch len(args) {
+	case 0:
 		SwitchList(parsedConfig)
-	} else if cmd.NArg() == 1 {
-		selectedConfig := cmd.Arg(0)
+	case 1:
+		selectedConfig := args[0]
 
 		_, err := config.FindGitConfigByName(parsedConfig, selectedConfig)
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		fmt.Printf("Switching for this shell session to \"%s\"\n", selectedConfig)
-	} else {
-		fmt.Println("Incorrect amount of arguments")
-		os.Exit(1)
+	default:
+		return fmt.Errorf("incorrect amount of arguments")
 	}
+
+	return nil
 }

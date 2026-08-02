@@ -1,44 +1,46 @@
 package commands
 
 import (
-	"flag"
 	"fmt"
 	"gigot/internal/config"
-	"os"
+
+	"github.com/spf13/cobra"
 )
 
-func AddFlagSet() *flag.FlagSet {
-	cmd := flag.NewFlagSet("add", flag.ExitOnError)
-
+func AddCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "add",
+		Short: "Adds a new gitconfig to the configuration file",
+		RunE:  Add,
+	}
+	cmd.Flags().String("name", "", "Name of the associated gitconfig")
+	cmd.Flags().String("path", "", "Path of the associated gitconfig")
 	return cmd
 }
 
-func Add(cmd *flag.FlagSet) {
-	name := cmd.String("name", "", "Name of the associated gitconfig")
-	path := cmd.String("path", "", "Path to the associated gitconfig")
+func Add(cmd *cobra.Command, args []string) error {
+	name, _ := cmd.Flags().GetString("name")
+	path, _ := cmd.Flags().GetString("path")
 
-	if err := cmd.Parse(os.Args[2:]); err != nil {
-		panic(err)
-	}
-
-	if *name == "" || *path == "" {
-		fmt.Println("Incorrect usage, please use the \"--help\" flag as reference")
-		os.Exit(1)
+	if name == "" || path == "" {
+		return fmt.Errorf("incorrect usage, missing name or path")
 	}
 
 	parsedConfig, err := config.ParseGitConfigFile(config.GetGitConfigFilename())
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	parsedConfig = append(parsedConfig, config.GitConfigConfig{Name: *name, Path: *path, Enabled: false})
+	parsedConfig = append(parsedConfig, config.GitConfigConfig{Name: name, Path: path, Enabled: false})
 
 	err = config.WriteGitConfigFile(config.GetGitConfigFilename(), parsedConfig)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	fmt.Printf("Added \"%s\" to the configuration\n", *name)
+	fmt.Printf("Added \"%s\" to the configuration\n", name)
+
+	return nil
 }

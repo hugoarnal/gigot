@@ -2,9 +2,9 @@ package commands
 
 import (
 	_ "embed"
-	"flag"
 	"fmt"
-	"os"
+
+	"github.com/spf13/cobra"
 )
 
 type initShell struct {
@@ -12,19 +12,12 @@ type initShell struct {
 	content string
 }
 
-func InitFlagSet() *flag.FlagSet {
-	cmd := flag.NewFlagSet("init", flag.ExitOnError)
-
-	cmd.Usage = func() {
-		shells := initShellList()
-
-		fmt.Println("Available shells:")
-
-		for _, shell := range shells {
-			fmt.Printf("    %s\n", shell.name)
-		}
+func InitCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "init",
+		Short: "Initialize your shell session",
+		RunE:  Init,
 	}
-
 	return cmd
 }
 
@@ -52,25 +45,19 @@ func initShellList() []initShell {
 	}
 }
 
-func Init(cmd *flag.FlagSet) {
-	if err := cmd.Parse(os.Args[2:]); err != nil {
-		panic(err)
-	}
-
+func Init(cmd *cobra.Command, args []string) error {
 	shells := initShellList()
 
-	if cmd.NArg() != 1 {
-		fmt.Println("Invalid amount of arguments")
-		os.Exit(1)
+	if len(args) != 1 {
+		return fmt.Errorf("invalid amount of arguments")
 	}
 
 	for _, shell := range shells {
-		if cmd.Arg(0) == shell.name {
+		if args[0] == shell.name {
 			fmt.Print(shell.content)
-			return
+			return nil
 		}
 	}
 
-	fmt.Println("Unknown shell")
-	os.Exit(1)
+	return fmt.Errorf("unknown shell")
 }
