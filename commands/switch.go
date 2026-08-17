@@ -5,25 +5,105 @@ import (
 	"gigot/internal/config"
 	"os"
 
+	tea "charm.land/bubbletea/v2"
 	"github.com/spf13/cobra"
 )
 
-func SwitchList(parsedConfig []config.GitConfigConfig) {
-	// Listing all of them for now
-	// TODO: switch to TUI
-	fmt.Println("You must specify the gitconfig to switch to")
-	fmt.Println()
-	fmt.Println("The currently available configs are:")
+type model struct {
+	choices []config.GitConfigConfig
+	cursor  int
 
-	for _, c := range parsedConfig {
-		fmt.Printf("    %s", c.Name)
-		if c.Enabled {
-			fmt.Printf(" (enabled)")
+	// The selected config name
+	Config *config.GitConfigConfig
+}
+
+func (m model) View() tea.View {
+	s := "Select which config to switch to\n\n"
+
+	for i, choice := range m.choices {
+		cursor := " "
+		if m.cursor == i {
+			cursor = ">"
 		}
-		fmt.Printf("\n")
+
+		enabled := ""
+		if choice.Enabled {
+			enabled = " (enabled)"
+		}
+
+		s += fmt.Sprintf("%s %s%s\n", cursor, choice.Name, enabled)
 	}
 
-	os.Exit(1)
+	s += "\nPress q to quit\n"
+	return tea.NewView(s)
+}
+
+func (m model) Init() tea.Cmd {
+	return nil
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+
+	case tea.KeyPressMsg:
+		switch msg.String() {
+		case "ctrl+c", "q":
+			return m, tea.Quit
+
+		case "up":
+			if m.cursor > 0 {
+				m.cursor--
+			}
+
+		case "down":
+			if m.cursor < len(m.choices)-1 {
+				m.cursor++
+			}
+
+		case "enter", "space":
+			m.Config = &m.choices[m.cursor]
+			return m, tea.Quit
+		}
+	}
+
+	return m, nil
+}
+
+func SwitchList(parsedConfig []config.GitConfigConfig, filename string) error {
+	p := tea.NewProgram(model{
+		choices: parsedConfig,
+		Config:  nil,
+	})
+	teaModel, err := p.Run()
+	if err != nil {
+		fmt.Printf("Alas, there's been an error: %v", err)
+		os.Exit(1)
+	}
+	m := teaModel.(model)
+
+	if m.Config == nil {
+		return nil
+	}
+
+	if err := config.SwitchGitConfigConfig(&parsedConfig, m.Config.Name); err != nil {
+		return err
+	}
+
+	if err := config.WriteGitConfigFile(filename, parsedConfig); err != nil {
+		return err
+	}
+
+	printSwitchConfig(m.Config)
+	return nil
+}
+
+func printSwitchConfig(config *config.GitConfigConfig) {
+	particle := "on"
+	if !config.Enabled {
+		particle = "off"
+	}
+
+	fmt.Printf("Toggled %s \"%s\" configuration\n", particle, config.Name)
 }
 
 func SwitchCommand() *cobra.Command {
@@ -64,7 +144,12 @@ func Switch(cmd *cobra.Command, args []string) error {
 
 	switch len(args) {
 	case 0:
-		SwitchList(parsedConfig)
+		err := SwitchList(parsedConfig, filename)
+
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	case 1:
 		selectedConfig := args[0]
 
@@ -82,12 +167,7 @@ func Switch(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		particle := "on"
-		if !parsedConfig[configIndex].Enabled {
-			particle = "off"
-		}
-
-		fmt.Printf("Toggled %s \"%s\" configuration\n", particle, selectedConfig)
+		printSwitchConfig(&parsedConfig[configIndex])
 	default:
 		return fmt.Errorf("incorrect amount of arguments")
 	}

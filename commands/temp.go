@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"gigot/internal/config"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -37,7 +38,12 @@ func Temp(cmd *cobra.Command, args []string) error {
 
 	switch len(args) {
 	case 0:
-		SwitchList(parsedConfig)
+		err := SwitchList(parsedConfig, filename)
+
+		if err != nil {
+			fmt.Println("")
+			os.Exit(1)
+		}
 	case 1:
 		selectedConfig := args[0]
 
